@@ -1,0 +1,4 @@
+//moddir mechanisms
+
+load_file("nrngui.hoc")
+xopen("main.hoc")

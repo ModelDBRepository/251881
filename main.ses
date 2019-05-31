@@ -1,0 +1,44 @@
+// Create NEURON session, with RunControl panel and graph
+// main.ses created by editing ModelDB's accession number 244688, fig4A-model.ses
+
+{load_file("nrngui.hoc")}
+objectvar save_window_, rvp_, sP
+objectvar scene_vector_[3]
+objectvar ocbox_, ocbox_list_, scene_, scene_list_
+{ocbox_list_ = new List()  scene_list_ = new List()}
+{pwman_place(0,0,0)}
+{
+xpanel("RunControl", 0)
+xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+xbutton("Init & Run","run()")
+xbutton("Stop","stoprun=1")
+runStopAt = 5
+xvalue("Continue til","runStopAt", 1,"{continuerun(runStopAt) stoprun=1}", 1, 1 )
+runStopIn = 1
+xvalue("Continue for","runStopIn", 1,"{continuerun(t + runStopIn) stoprun=1}", 1, 1 )
+xbutton("Single Step","steprun()")
+
+xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+dt = 5.71286
+xvalue("dt","dt", 1,"setdt()", 0, 1 )
+steps_per_ms = 40
+xvalue("Points plotted/ms","steps_per_ms", 1,"setdt()", 0, 1 )
+screen_update_invl = 0.05
+xvalue("Scrn update invl","screen_update_invl", 1,"", 0, 1 )
+realtime = 14
+xvalue("Real Time","realtime", 0,"", 0, 1 )
+xbutton("Quit","quit()")
+xpanel(180,180)
+}
+
+{
+save_window_ = new Graph(0)
+//save_window_.size(0,tstop,yaxis_lower,yaxis_upper)
+scene_vector_[2] = save_window_
+graphList[0].append(save_window_)
+save_window_.save_name("graphList[0].")
+save_window_.addexpr("v(.5)", 1, 1, 0.8, 0.9, 2)
+}
+
+objectvar scene_vector_[1]
+{doNotify()}

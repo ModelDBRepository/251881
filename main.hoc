@@ -1,0 +1,259 @@
+// Main script to select different stimuli and running simulations
+// main.hoc created by editing ModelDB's accession number 244688, fig4A-model.hoc
+
+// 2019: Code adapted to load Thalamic cells by Elisabetta Iavarone @ Blue Brain Project
+//       Code improvements by Werner Van Geit @ Blue Brain Project
+
+
+load_file("nrngui.hoc")
+cvode_active(1) 
+celsius=34
+
+objref stim, hold, ampsr, timesr, cell, noisei, noiset, f, ft
+
+xpanel("",0)
+xradiobutton(" cNAD_ltb burst ", "select(1)")
+xradiobutton(" cNAD_ltb tonic ", "select(2)")
+xradiobutton(" cAD_ltb burst ", "select(3)")
+xradiobutton(" cAD_ltb tonic ", "select(4)")
+xradiobutton(" Ramp burst ", "select(5)")
+xradiobutton(" Ramp tonic ", "select(6)")
+xradiobutton(" Noise burst ", "select(7)")
+xradiobutton(" Noise tonic ", "select(8)")
+xpanel(720,180)
+
+yaxis_upper = 40
+yaxis_lower = -100
+
+load_file("cNAD_ltb.hoc") 
+load_file("cAD_ltb.hoc")
+
+load_file("main.ses")
+
+proc delete_all() {
+    forall {delete_section()}
+}
+
+proc redraw() {
+        xaxis_lower = 0
+        xaxis_upper = $1
+        save_window_.yaxis(3)
+        {save_window_.xaxis(xaxis_lower, xaxis_upper, 0, -1, 1, 0, 1)}
+        {save_window_.yaxis(yaxis_lower, yaxis_upper, 0, 4, 1, 0, 1)}
+        {save_window_.view(xaxis_lower, yaxis_lower, xaxis_upper-xaxis_lower, yaxis_upper-yaxis_lower, 189, 663, 890.1, 200.8)}
+	    doNotify()
+}
+
+
+proc select() {
+    flag = $1
+    delete_all()
+
+	if (flag==1) {
+		cell = new cNAD_ltb("morphologies")
+		access cell.soma
+		stim = new IClamp(0.5)
+		stim.del=800
+		stim.dur=1350
+		stim.amp=0.14673
+		tstop = stim.del+stim.dur+250
+		hold = new IClamp(0.5)
+		hold.del=0
+		hold.amp=-0.121695
+		hold.dur=tstop
+		printf("Running stimulus with holding current %.2g, step current %.2g ...\n", hold.amp, stim.amp)
+		v_init = -79
+        redraw(tstop+500)
+		run()
+	}
+	if (flag==2) {
+		cell = new cNAD_ltb("morphologies")
+		access cell.soma
+		stim = new IClamp(0.5)
+		stim.del=800
+		stim.dur=1350
+		stim.amp=0.140843
+		tstop = stim.del+stim.dur+250
+		hold = new IClamp(0.5)
+		hold.del=0
+		hold.amp=0.153092
+		hold.dur=tstop
+		printf("Running stimulus with holding current %.2g, step current %.2g ...\n", hold.amp, stim.amp)
+		v_init = -64 // -79 in optimisation
+        redraw(tstop+500)
+	    doNotify()
+		run()
+	}
+
+	if (flag==3) {
+		cell = new cAD_ltb("morphologies") 
+		access cell.soma
+		stim = new IClamp(0.5)
+		stim.del=800
+		stim.dur=1350
+		tstop = stim.del+stim.dur+250
+		stim.amp = 0.14673
+		hold = new IClamp(0.5)
+		hold.del=0
+		hold.amp=-0.121695
+		hold.dur=tstop
+		printf("Running stimulus with holding current %.2g, step current %.2g ...\n", hold.amp, stim.amp)
+		v_init = -79
+        redraw(tstop+500)
+	    doNotify()
+		run()
+	}
+	if (flag==4) {
+		cell = new cAD_ltb("morphologies")
+		access cell.soma
+		stim = new IClamp(0.5)
+		stim.del=800
+		stim.dur=1350
+		tstop = stim.del+stim.dur+250
+		stim.amp=0.118859
+		hold = new IClamp(0.5)
+		hold.del=0
+		hold.amp=0.134536
+		hold.dur=tstop
+		printf("Running stimulus with holding current %.2g, step current %.2g ...\n", hold.amp, stim.amp)
+		v_init = -64 // -79 in optimisation
+        redraw(tstop+500)
+	    doNotify()
+		run()
+	}
+	if (flag==5) {
+		cell = new cAD_ltb("morphologies")
+		access cell.soma
+
+		delay = 800
+		maxamp = 0.45
+		ampsr = new Vector()
+		timesr = new Vector()
+		timesr.append(0.0)
+		ampsr.append(0.0)
+
+		timesr.append(delay)
+		ampsr.append(0.0)
+
+		
+		timesr.append(delay+1250)
+		ampsr.append(maxamp)
+
+		
+		stim = new IClamp(0.5)
+		stim.dur = 1e9
+		ampsr.play(&stim.amp,timesr,1)
+
+		hold = new IClamp(0.5)
+		hold.del=0
+		hold.amp=-0.25
+		hold.dur=1e9
+		printf("Running ramp stimulus in burst mode ...\n")
+		v_init = -79
+        tstop=delay+1250
+        redraw(tstop+500)
+	    doNotify()
+		run()
+	}
+	if (flag==6) {
+		cell = new cAD_ltb("morphologies")
+		access cell.soma
+
+		delay = 800
+		
+		ampsr = new Vector()
+		timesr = new Vector()
+		timesr.append(0.0)
+		ampsr.append(0.0)
+
+		timesr.append(delay)
+		ampsr.append(0.0)
+
+		
+		timesr.append(delay+4000)
+		ampsr.append(0.163341)
+
+		
+		stim = new IClamp(0.5)
+		stim.dur = 1e9
+		ampsr.play(&stim.amp,timesr,1)
+
+		hold = new IClamp(0.5)
+		hold.del=0
+		hold.amp=0.13043
+		hold.dur=1e9
+		printf("Running ramp stimulus in tonic mode ...\n")
+		v_init = -64 // -79 in optimisation
+        tstop = delay+4000
+        redraw(tstop+500)
+	    doNotify()
+		run()
+	}
+    if (flag==7) {
+        mu = 365
+        cell = new cAD_ltb("morphologies")
+        access cell.soma
+        ft = new File()
+        ft.ropen("noiset.txt")
+        noiset = new Vector()
+        noiset.scanf(ft)
+
+        f = new File()
+        f.ropen("noisei.txt")
+        noisei = new Vector()
+        noisei.scanf(f)
+        noisei.mul(0.2)
+        noisei.mul(mu)
+        noisei.add(mu)
+        noisei.mul(0.001)
+
+        stim = new IClamp(0.5)
+        stim.dur = 1e9
+        noisei.play(&stim.amp, noiset)
+
+        hold = new IClamp(0.5)
+        hold.del=0
+        hold.amp=-0.121695
+        hold.dur=1e9
+        printf("Running noise stimulus in burst mode ...\n")
+        v_init = -79
+        tstop = 1500
+        redraw(tstop+500)
+	    doNotify()
+        run()
+    }
+	if (flag==8) {
+		mu = 118
+		cell = new cAD_ltb("morphologies")
+		access cell.soma
+		ft = new File()
+		ft.ropen("noiset.txt")
+		noiset = new Vector()
+		noiset.scanf(ft)
+
+		f = new File()
+		f.ropen("noisei.txt")
+		noisei = new Vector()
+		noisei.scanf(f)
+		noisei.mul(0.5)
+		noisei.mul(mu)
+		noisei.add(mu)
+		noisei.mul(0.001)
+
+		stim = new IClamp(0.5)
+		stim.dur = 1e9
+		noisei.play(&stim.amp, noiset)
+
+		hold = new IClamp(0.5)
+		hold.del=0
+		hold.amp=0.134536
+		hold.dur=1e9
+		printf("Running noise stimulus in tonic mode ...\n")
+		v_init = -64 // -79 in optimisation
+        tstop = 1500
+        redraw(tstop+500)
+	    doNotify()
+		run()
+	}
+
+}
